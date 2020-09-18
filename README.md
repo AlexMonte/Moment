@@ -1,4 +1,4 @@
-Moment.js is a library that creates an animated starry sky that renders passively on the target element's background. 
+### Moment.js is a library that creates an animated starry sky that renders passively on the target element's background. 
 ---
 
 #### Setup

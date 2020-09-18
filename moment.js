@@ -1,186 +1,148 @@
-(function ($) {
-  $.moment = function (u) {
-    let defaults = {
-        total: 15,
-        minPixel: 1,
-        maxPixel: 3,
-        color: "#fff",
-        anispeed: 80000,
-        on: null,
-        motion: true
-      },
-      settings = $.extend({}, defaults, u),
-      $wrapper = $(settings.on).addClass("moment"),
-      $rail = $("<ul class='momentRail'></u>"),
-      $panel = $("<li class='momentPanel'>"),
-      $eleHeight = $wrapper.height(),
-      $eleWidth = $wrapper.width(),
-      state = {
-        panelCount: 2,
-        interval: null,
-        motion: "forward",
-        animated: false,
-        nextpanel: 0,
-        initialize: true
-      };
-    $wrapper.css({
-      "overflow-x": "hidden"
-    });
-    $rail.css({
-      "box-sizing": "border-box",
-      position: "absolute",
-      height: "100%",
-      margin: "0",
-      padding: "0",
-      display: "flex",
-      width: "100%",
-      left: "0",
-      top: "0"
-    });
-    $panel.css({
-      position: "relative",
-      display: "inline",
-      height: "100%",
-      width: "100%",
-      "z-index": 1,
-      display: "block",
-      "list-style": "none"
-    });
+const sunsets = [
+    {name:'default' ,start:"#6B0F3A", end:"#FF4E00"},
+    {name: 'Mars Conquest',start:"#EC9F05" , end:"#FF4E00"},
+    {name: "Pollock's inspiration",start:"#B91372", end:"#6B0F1A"},
+    {name: 'West Coast',start:"#AFF1DA", end:"#F9EA8F"},
+    {name: 'Mars ambassador',start:"#FE5F75", end:"#FC9842"},
+    {name: 'Wet Desert',start:"#F9ABA4", end:"#EFECEC"},
+    {name: 'Entry Scene', start:"#864BA2", end:"#BF3A30"}
+]
 
-    let fx_randomPixel = function (min, max) {
+const defaults = {
+    starCount: 50,
+    minStarSize: 1,
+    maxStarSize: 3,
+    color: "#fff",
+    animationSpeed: 5,
+    motion: true,
+    css: "MomentStyle",
+    initialize: false,
+    theme: 0
+}
+
+function Star(ctx, x, y, speed, size) {
+    this.x = x;
+    this.y = y;
+    this.dx = size / speed;
+    this.size = size;
+
+    this.ctx = ctx;
+    this.isAlive = true;
+
+    this.remove = () => {
+        this.isAlive = false;
+    }
+    this.draw = () => {
+        this.ctx.fillStyle = "#fff";
+        this.ctx.fillRect(this.x, this.y, this.size, this.size);
+    }
+
+    this.update = () => {
+        if (this.x > 0) {
+            this.x -= this.dx;
+            this.draw();
+        }
+        else {
+            this.remove();
+        }
+    }
+
+}
+
+
+class Moment {
+    constructor(targetElement, options) {
+        this.settings = { ...defaults, ...options };
+        this.time = new Date();
+        this.init(targetElement);
+        window.requestAnimationFrame(this.update);
+    }
+    init = (targetElement) => {
+
+        this.stars = [];
+
+        if (typeof targetElement === 'string') {
+            this.target = document.querySelector(targetElement);
+        } else {
+            this.target = targetElement;
+        }
+        this.loadCss(this.settings.css);
+
+        this.canvas = document.createElement("canvas");
+        
+        this.target.appendChild(this.canvas);
+        this.target.classList.add("skytarget");
+        this.canvas.classList.add("moment");
+        this.ctx = this.canvas.getContext('2d');
+        this.resize();
+
+        window.addEventListener('resize', this.resize);
+    }
+    loadCss = (cssID) => {
+        if (document.getElementById(cssID)) { return };
+        let head = document.getElementsByTagName("head")[0];
+        let link = document.createElement("link");
+        link.id = cssID;
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = './moment.css';
+        link.media = 'all';
+        head.appendChild(link);
+    }
+    randomizeStarSize = (min, max) => {
         return Math.floor(Math.random() * (min - max + min) + max);
-      },
-      fx_random = function (value) {
+    }
+    randomizeStarPosition = function (value) {
         return Math.ceil(Math.random() * value) - 1;
-      },
-      fx_stars = function (starSize, elem) {
-        var $sparkle = $("<span class='sparkle'>");
-        elem.append($sparkle);
-        return $sparkle.css({
-          position: "absolute",
-          width: starSize,
-          height: starSize,
-          top: fx_random($eleHeight),
-          left: fx_random($eleWidth),
-          "background-color": settings.color,
-          "z-index": fx_random(15)
-        });
-      },
-      fx_sky = function (elem) {
-        for (let i = 0; i < settings.total; i++) {
-          fx_stars(fx_randomPixel(settings.minPixel, settings.maxPixel), elem);
+    }
+    createStar = () => {
+        
+    }
+    draw = () => {
+        // let time = this.time.getHours()
+        let gradient = this.ctx.createLinearGradient(0, 0, 0, innerHeight);
+        gradient.addColorStop(0, sunsets[this.settings.theme].start);
+        gradient.addColorStop(0.4, sunsets[this.settings.theme].end);
+        this.ctx.fillStyle = gradient;
+        this.ctx.fillRect(0, 0, innerWidth, innerHeight)
+        while (this.stars.length < this.settings.starCount) {
+       
+            this.stars.push(new Star(
+                this.ctx,
+                innerWidth+this.settings.maxStarSize,
+                this.randomizeStarPosition(innerHeight),
+                this.settings.animationSpeed,
+                this.randomizeStarSize(this.settings.minStarSize, this.settings.maxStarSize)
+            ));
+            
         }
-      },
-      fx_create = function (panelCount) {
-        for (let i = 0; i < panelCount; i++) {
-          $panel.clone().appendTo($rail).hide();
-        }
-        let panel = $rail.children("li");
-        for (let i = 0; i < panelCount; i++) {
-          fx_sky(panel.eq(i));
-        }
-        let $first = panel.eq(0).clone(),
-          $last = panel.eq(panelCount - 1).clone();
-        panel.remove();
-        $last
-          .attr({
-            "data-panel": "last"
-          })
-          .appendTo($rail)
-          .show();
-        if (settings.motion === true) {
-          $first
-            .attr({
-              "data-panel": "first"
-            })
-            .prependTo($rail)
-            .show();
-        }
-      },
-      fx_motion = function () {
-        if (settings.motion === true) {
-          let panels = $rail.children("li");
-          if (!state.animated) {
-            state.animated = true;
-            if (!state.initialize) {
-              for (const panel in panels) {
-                if (
-                  panel.dataset.panel === "first" ||
-                  panels.eq(0).dataset.panel === "first"
-                ) {
-                  panel.animate(
-                    { left: -$eleWidth },
-                    settings.anispeed * 2,
-                    "linear",
-                    function () {
-                      panel.css({
-                        left: $eleWidth
-                      });
-                      console.log("first panel: " + $eleWidth);
-                    }
-                  );
-                } else if (
-                  panel.dataset.panel === "last" ||
-                  panels.eq(1).dataset.panel === "last"
-                ) {
-                  panel.animate(
-                    { left: -$eleWidth },
-                    settings.anispeed * 2,
-                    "linear",
-                    function () {
-                      panel.css({ left: $eleWidth });
-                      console.log("last panel: " + $eleWidth);
-                    }
-                  );
-                }
-              }
-            } else {
-              settings.initialize = true;
-              panels.eq(0).animate(
-                {
-                  left: -$eleWidth
-                },
-                settings.anispeed,
-                "linear",
-                () => {
-                  panels.eq(0).css({
-                    left: $eleWidth
-                  });
-                }
-              );
-              panels.eq(1).animate(
-                {
-                  left: -$eleWidth * 2
-                },
-                settings.anispeed * 2,
-                "linear",
-                () => {
-                  panels.eq(1).css({
-                    left: 0
-                  });
-                }
-              );
-              state.initialize = null;
+        this.settings.initialize = true; 
+    }
+    update = () => {
+        window.requestAnimationFrame(this.update);
+        this.ctx.clearRect(0, 0, innerWidth, innerHeight);
+        this.draw();
+        for (let i = 0; i < this.stars.length; i++) {
+            if (!this.stars[i].isAlive) {
+                this.stars.splice(i, 1);
             }
-          }
-          state.animated = false;
+            this.stars[i].update();
         }
-      },
-      init = function () {
-        fx_create(state.panelCount);
-        $wrapper.append($rail);
-        fx_motion();
-        state.interval = setInterval(function () {
-          fx_motion();
-        }, settings.anispeed);
-      };
-    init();
-  };
-})(jQuery);
 
-$.moment({
-  on: "body",
-  total: 100
-});
-
-	
+    }
+    resize = () => {
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+        this.stars = [];
+        while (this.stars.length < this.settings.starCount) {
+            this.stars.push(new Star(
+                this.ctx,
+                this.randomizeStarPosition(innerWidth),
+                this.randomizeStarPosition(innerHeight),
+                this.settings.animationSpeed,
+                this.randomizeStarSize(this.settings.minStarSize, this.settings.maxStarSize)
+            ));
+            
+        }
+    }
+}

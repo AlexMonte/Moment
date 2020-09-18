@@ -13,7 +13,7 @@ const defaults = {
     minStarSize: 1,
     maxStarSize: 3,
     color: "#fff",
-    animationSpeed: 5,
+    animationSpeed: 16,
     motion: true,
     css: "MomentStyle",
     initialize: false,

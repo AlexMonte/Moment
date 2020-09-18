@@ -104,11 +104,7 @@ class Moment {
         window.addEventListener('resize', this.resize);
 
         if(this.settings.DEMO === true) {
-            this.info = document.createElement("span");
-            this.info.classList.add("info");
-            this.target.appendChild(this.info);
-        
-        _addEventListener('keydown', document, this.input);
+            this.debug();
         }
     }
     loadCss = (cssID) => {
@@ -118,7 +114,7 @@ class Moment {
         link.id = cssID;
         link.rel = 'stylesheet';
         link.type = 'text/css';
-        link.href = './moment.css';
+        link.href = './src/moment.css';
         link.media = 'all';
         head.appendChild(link);
     }
@@ -160,6 +156,9 @@ class Moment {
                 this.stars.splice(i, 1);
             }
             this.stars[i].update();
+        }
+        if(this.settings.DEMO === true) {
+
         }
 
     }
@@ -207,7 +206,7 @@ class Moment {
                 this.settings.theme = 6;
                 break;
             default:
-                this.info.innerHTML += "SOMEKEY ";
+             //   this.info.innerHTML += "SOMEKEY ";
         }
     }
     resize = () => {
@@ -224,6 +223,16 @@ class Moment {
             ));
 
         }
+    }
+
+    debug = () => {
+        this.info = document.createElement("span",);
+        this.info.classList.add("debug");
+        
+        this.target.appendChild(this.info);
+    
+    _addEventListener('keydown', document, this.input);
+
     }
 }
 

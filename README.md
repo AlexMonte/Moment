@@ -30,7 +30,6 @@ and initialize it in Javascript.
     color: "#fff",      // default star color
     animationSpeed: 5,  // defualt animation speed
     motion: true,       // animate Motion.js if true
-    css: "MomentStyle", // defuault CSS file
     theme: 0            // Motion.js Sky color theme
   }
  ```

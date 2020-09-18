@@ -1,0 +1,136 @@
+/* Imports */
+
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@500&display=swap");
+
+/* Elements */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Roboto Mono", monospace;
+  height: 100vh;
+  margin: 0 auto;
+  position: relative;
+  background-color: #3e3a50;
+  display: grid;
+  place-items: center;
+}
+
+header {
+  background-color: #3e3a50;
+  position: fixed;
+  width: 100%;
+  height: 50px;
+
+  /*box-shadow: 0px 5px #c9c8d5;*/
+}
+
+header h1 {
+  margin: 0;
+  padding: 10px;
+  color: #f2f2f0;
+  font-size: 24px;
+}
+.boxes {
+    height: 60vh;
+    width: 100%;
+    display: grid;
+    grid-gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+/* Classes */
+
+.box {
+  position: relative;
+  background-color: #f2f2f0;
+  z-index: 10;
+  border: 5px solid #3e3a50;
+  /*border-radius: 30px;
+  box-shadow: 5px 5px #c9c8d522;*/
+  padding: 20px 20px 0;
+}
+
+
+.ground {
+  z-index: 9;
+  background-image: url("https://i.imgur.com/F8l4E77.png");
+  background-repeat: repeat;
+  position: absolute;
+  bottom: 0;
+  width: 100vw;
+  height: 64px;
+}
+
+.character {
+  position: absolute;
+  bottom: 60px;
+  left: 35vw;
+  width: 128px;
+  height: 128px;
+  background-image: url("https://i.imgur.com/lXWHaQ3.gif");
+  background-size: cover;
+  z-index: 100;
+
+  animation-name: moveCharacter;
+  animation-timing-function: linear;
+  animation-duration: 4s;
+}
+
+/* Responsive Rules */
+
+@media (max-width: 500px) {
+  header h1 {
+    font-size: 14px;
+  }
+  .character {
+    left: 25vw;
+    animation-name: moveCharacterResponsive;
+    animation-duration: 2s;
+  }
+}
+@media (max-height: 400px) {
+  p,
+  a {
+    font-size: 10px;
+  }
+  .ground {
+    height: 32px;
+  }
+  .character {
+    bottom: 28px;
+    left: 5vw;
+    animation-name: moveCharacterHorizontal;
+    animation-duration: 2s;
+  }
+}
+
+/* Animations */
+
+@keyframes moveCharacter {
+  0% {
+    left: -10vw;
+  }
+
+  100% {
+    left: 35vw;
+  }
+}
+@keyframes moveCharacterResponsive {
+  0% {
+    left: -10vw;
+  }
+
+  100% {
+    left: 25vw;
+  }
+}
+@keyframes moveCharacterHorizontal {
+  0% {
+    left: -10vw;
+  }
+
+  100% {
+    left: 5vw;
+  }
+}
